@@ -3,12 +3,20 @@ package com.shadesofmorton;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.ConfigSection;
 import net.runelite.client.config.Notification;
 
 @ConfigGroup(ShadesOfMortonConfig.CONFIG_GROUP)
 public interface ShadesOfMortonConfig extends Config
 {
 	String CONFIG_GROUP = "shades-of-morton";
+
+	@ConfigSection(
+		name = "Notifications",
+		description = "Notifications for temple and pyre activity.",
+		position = 0
+	)
+	String NOTIFICATIONS_SECTION = "notifications";
 
 	@ConfigItem(
 		keyName = "preventActionInterrupt",
@@ -33,7 +41,7 @@ public interface ShadesOfMortonConfig extends Config
 	@ConfigItem(
 		keyName = "chestPaths",
 		name = "Chest paths",
-		description = "Draw paths in the catacombs to the chests matching the key metals you are holding."
+		description = "Draw paths to the chests for keys you have in your inventory."
 	)
 	default boolean chestPaths()
 	{
@@ -42,8 +50,8 @@ public interface ShadesOfMortonConfig extends Config
 
 	@ConfigItem(
 		keyName = "chestHighlight",
-		name = "Chest highlight",
-		description = "Outline the catacombs chests that match the keys you are holding."
+		name = "Highlight chests",
+		description = "Highlight chests that you have the keys to open."
 	)
 	default boolean chestHighlight()
 	{
@@ -52,31 +60,34 @@ public interface ShadesOfMortonConfig extends Config
 
 	@ConfigItem(
 		keyName = "fullSanctityNotification",
-		name = "Full sanctity",
-		description = "Notify when the temple reaches full sanctity."
+		name = "Notify on full sanctity",
+		description = "Notify when the temple reaches full sanctity.",
+		section = NOTIFICATIONS_SECTION
 	)
 	default Notification fullSanctityNotification()
 	{
-		return new Notification();
+		return new Notification().withEnabled(true);
 	}
 
 	@ConfigItem(
 		keyName = "stoppedRepairingNotification",
-		name = "Stopped repairing",
-		description = "Notify when you stop repairing the temple."
+		name = "Notify on stop repairing",
+		description = "Notify when you stop repairing the temple.",
+		section = NOTIFICATIONS_SECTION
 	)
 	default Notification stoppedRepairingNotification()
 	{
-		return new Notification();
+		return new Notification().withEnabled(true);
 	}
 
 	@ConfigItem(
 		keyName = "stoppedSanctifyingNotification",
-		name = "Stopped sanctifying oil",
-		description = "Notify when you stop sanctifying oil at the fire."
+		name = "Notify on stop sanctifying",
+		description = "Notify when you stop sanctifying oil at the fire.",
+		section = NOTIFICATIONS_SECTION
 	)
 	default Notification stoppedSanctifyingNotification()
 	{
-		return new Notification();
+		return new Notification().withEnabled(true);
 	}
 }
