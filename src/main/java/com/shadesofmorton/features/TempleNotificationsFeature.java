@@ -2,8 +2,12 @@ package com.shadesofmorton.features;
 
 import com.shadesofmorton.ShadesOfMortonConfig;
 import com.shadesofmorton.ShadesOfMortonConstants;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
 import javax.inject.Inject;
 import net.runelite.api.Client;
+import net.runelite.api.MenuAction;
 import net.runelite.api.Player;
 import net.runelite.api.WorldView;
 import net.runelite.api.coords.WorldPoint;
@@ -11,30 +15,56 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.gameval.VarPlayerID;
+import net.runelite.api.widgets.Widget;
 import net.runelite.client.Notifier;
+import net.runelite.client.config.Notification;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.util.Text;
 
-/**
- * Fires notifications for temple activities: stopping a repair, stopping oil sanctifying, and
- * reaching full sanctity. Both repair and sanctify use animation 832, so the activity is
- * identified deterministically by the menu option clicked ("Reinforce" a temple wall vs "Use"
- * olive oil on the flaming fire altar), then the animation drives start/stop.
- */
 public class TempleNotificationsFeature implements Feature
 {
-	private static final int ACTION_ANIM = 832;
-	// Both repair and sanctify auto-repeat with a 1-tick animation gap between each item; end
-	// the sequence only after the animation has been absent for one tick longer than that gap.
-	private static final int REPAIR_IDLE_TICKS = 2;
-	private static final int SANCTIFY_IDLE_TICKS = 3;
+	private static final int REPAIR_OR_SANCTIFY_ACTION_ANIMATION_ID = 832;
+
 	private static final int FULL_SANCTITY = 100;
 
 	private enum Activity
 	{
-		NONE,
-		REPAIRING,
-		SANCTIFYING
+		NONE(0, null),
+		// Both actions auto-repeat with a short animation gap between each item; only notify
+		// once the animation has been absent for more idle ticks than that gap.
+		REPAIRING(2, "Stopped repairing the temple."),
+		SANCTIFYING(3, "Stopped sanctifying oil.");
+
+		final int numIdleTicksToNotify;
+		final String idleNotificationMessage;
+
+		Activity(int numIdleTicksToNotify, String idleNotificationMessage)
+		{
+			this.numIdleTicksToNotify = numIdleTicksToNotify;
+			this.idleNotificationMessage = idleNotificationMessage;
+		}
+	}
+
+	private static final Function<ShadesOfMortonConfig, Notification> NO_NOTIFICATION = config -> null;
+
+	// The config notification each activity fires when it stops. NONE is a no-op.
+	private static final Map<Activity, Function<ShadesOfMortonConfig, Notification>> STOPPED_NOTIFICATIONS =
+		new EnumMap<>(Map.of(
+			Activity.NONE, NO_NOTIFICATION,
+			Activity.REPAIRING, ShadesOfMortonConfig::stoppedRepairingNotification,
+			Activity.SANCTIFYING, ShadesOfMortonConfig::stoppedSanctifyingNotification
+		));
+
+	static
+	{
+		for (Activity activity : Activity.values())
+		{
+			if (!STOPPED_NOTIFICATIONS.containsKey(activity))
+			{
+				// Can only happen if a developer adds an Activity without a handler above.
+				throw new IllegalStateException("No stopped-notification handler for " + activity);
+			}
+		}
 	}
 
 	@Inject
@@ -46,11 +76,23 @@ public class TempleNotificationsFeature implements Feature
 	@Inject
 	private ShadesOfMortonConfig config;
 
+	/**
+	 * The activity that the user is starting, but the player has not started the animation.
+	 * This prevents us from notifying before the character actually started the action.
+	 * For example when the player has clicked but the character is walking to the object.
+	 */
+	private Activity pendingActivity = Activity.NONE;
+
+	/**
+	 * The action that is in-progress, meaning the character is performing the animation.
+	 */
 	private Activity currentActivity = Activity.NONE;
-	private boolean repairing;
-	private int repairingIdle;
-	private boolean sanctifying;
-	private int sanctifyingIdle;
+
+	/**
+	 * Num idle ticks since the current action last animated.
+	 */
+	private int numTicksSinceLastAction;
+
 	private int lastSanctity = -1;
 
 	@Override
@@ -68,28 +110,62 @@ public class TempleNotificationsFeature implements Feature
 	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
-		if (!ShadesOfMortonConstants.OBJECT_MENU_ACTIONS.contains(event.getMenuAction()))
+		// Closing a right-click menu is not a redirect — ignore it.
+		if (event.getMenuAction() == MenuAction.CANCEL)
 		{
 			return;
 		}
 
-		// Any object interaction targeting the altar is a sanctify: the direct left-click
-		// (GAME_OBJECT_* option) and the use-oil-on-altar click (WIDGET_TARGET_ON_GAME_OBJECT,
-		// whose getId() is the altar) both land here.
-		if (ShadesOfMortonConstants.FIRE_ALTAR_OBJECT_IDS.contains(event.getId()))
+		final Activity clicked = getActivityForEvent(event);
+		if (clicked == pendingActivity)
 		{
-			currentActivity = Activity.SANCTIFYING;
+			// Re-clicking the same action just continues it — keep tracking.
 			return;
 		}
 
-		final String option = Text.removeTags(event.getMenuOption());
-		if ("Reinforce".equals(option) && repairTileClicked(event))
-		{
-			currentActivity = Activity.REPAIRING;
-		}
+		// Player started another action (or walked/interrupted away): switch intent and drop
+		// any in-progress action silently — only a natural end sends a notification.
+		pendingActivity = clicked;
+		currentActivity = Activity.NONE;
+		numTicksSinceLastAction = 0;
 	}
 
-	private boolean repairTileClicked(MenuOptionClicked event)
+
+	private Activity getActivityForEvent(MenuOptionClicked event)
+	{
+		if (!ShadesOfMortonConstants.OBJECT_MENU_ACTIONS.contains(event.getMenuAction()))
+		{
+			return Activity.NONE;
+		}
+
+		if (ShadesOfMortonConstants.FIRE_ALTAR_OBJECT_IDS.contains(event.getId()) && isSanctifyEvent(event))
+		{
+			return Activity.SANCTIFYING;
+		}
+
+		if ("Reinforce".equals(Text.removeTags(event.getMenuOption())) && isRepairTileClickEvent(event))
+		{
+			return Activity.REPAIRING;
+		}
+
+		return Activity.NONE;
+	}
+
+	private boolean isSanctifyEvent(MenuOptionClicked event)
+	{
+		// Use olive oil on the altar
+		if (event.getMenuAction() == MenuAction.WIDGET_TARGET_ON_GAME_OBJECT)
+		{
+			final Widget selected = client.getSelectedWidget();
+			return selected != null
+				&& ShadesOfMortonConstants.OLIVE_OIL_ITEM_IDS.contains(selected.getItemId());
+		}
+
+		// Left-click the altar (the text is just 'Use')
+		return "Use".equals(Text.removeTags(event.getMenuOption()));
+	}
+
+	private boolean isRepairTileClickEvent(MenuOptionClicked event)
 	{
 		// param0/param1 are the scene X/Y of the clicked wall object.
 		final WorldView worldView = client.getTopLevelWorldView();
@@ -101,36 +177,44 @@ public class TempleNotificationsFeature implements Feature
 	public void onGameTick(GameTick event)
 	{
 		final Player local = client.getLocalPlayer();
-		final boolean actionAnim = local != null && local.getAnimation() == ACTION_ANIM;
+		final boolean animating = local != null
+			&& local.getAnimation() == REPAIR_OR_SANCTIFY_ACTION_ANIMATION_ID;
 
-		final boolean repairingNow = actionAnim && currentActivity == Activity.REPAIRING;
-		final boolean sanctifyingNow = actionAnim && currentActivity == Activity.SANCTIFYING;
-
-		if (repairingNow)
+		if (animating)
 		{
-			repairing = true;
-			repairingIdle = 0;
-		}
-		else if (repairing && ++repairingIdle >= REPAIR_IDLE_TICKS)
-		{
-			notifier.notify(config.stoppedRepairingNotification(), "Stopped repairing the temple.");
-			repairing = false;
-			repairingIdle = 0;
-			currentActivity = Activity.NONE;
+			if (pendingActivity != Activity.NONE)
+			{
+				// The clicked action has actually started (or resumed after an inter-item gap).
+				currentActivity = pendingActivity;
+				numTicksSinceLastAction = 0;
+			}
+			return;
 		}
 
-		if (sanctifyingNow)
+		if (currentActivity == Activity.NONE)
 		{
-			sanctifying = true;
-			sanctifyingIdle = 0;
+			// No action animating (idle, or still walking to a clicked action) — nothing to time out.
+			return;
 		}
-		else if (sanctifying && ++sanctifyingIdle >= SANCTIFY_IDLE_TICKS)
+
+		numTicksSinceLastAction++;
+		if (numTicksSinceLastAction >= currentActivity.numIdleTicksToNotify)
 		{
-			notifier.notify(config.stoppedSanctifyingNotification(), "Stopped sanctifying oil.");
-			sanctifying = false;
-			sanctifyingIdle = 0;
-			currentActivity = Activity.NONE;
+			onActivityStopped();
 		}
+	}
+
+	private void onActivityStopped()
+	{
+		final Notification notification = STOPPED_NOTIFICATIONS.get(currentActivity).apply(config);
+		if (notification != null)
+		{
+			notifier.notify(notification, currentActivity.idleNotificationMessage);
+		}
+
+		pendingActivity = Activity.NONE;
+		currentActivity = Activity.NONE;
+		numTicksSinceLastAction = 0;
 	}
 
 	@Subscribe
@@ -142,22 +226,21 @@ public class TempleNotificationsFeature implements Feature
 		}
 
 		final int sanctity = event.getValue();
-		// Sanctity can climb past 100 (e.g. 101); notify only on the crossing into full, not
-		// on every change at or above it.
+
+		// Sanctity can go above 100. Only notify when we go from under 100 to 100 or above.
 		if (sanctity >= FULL_SANCTITY && lastSanctity < FULL_SANCTITY)
 		{
 			notifier.notify(config.fullSanctityNotification(), "Temple at full sanctity.");
 		}
+
 		lastSanctity = sanctity;
 	}
 
 	private void resetState()
 	{
+		pendingActivity = Activity.NONE;
 		currentActivity = Activity.NONE;
-		repairing = false;
-		repairingIdle = 0;
-		sanctifying = false;
-		sanctifyingIdle = 0;
+		numTicksSinceLastAction = 0;
 		lastSanctity = -1;
 	}
 }
