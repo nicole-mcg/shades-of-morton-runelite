@@ -58,7 +58,7 @@ class ChestPathOverlay extends Overlay
 			{
 				continue;
 			}
-			final Color colour = colourFor(metal);
+			final Color colour = metal.getColour();
 			for (List<WorldPoint> branch : branches)
 			{
 				if (branch.size() >= 2)
@@ -94,25 +94,5 @@ class ChestPathOverlay extends Overlay
 			return null;
 		}
 		return Perspective.localToCanvas(client, localPoint, worldPoint.getPlane());
-	}
-
-	private static Color colourFor(ShadeKeyMetal metal)
-	{
-		switch (metal)
-		{
-			case BRONZE:
-				return new Color(205, 127, 50);
-			case STEEL:
-				return new Color(170, 175, 185);
-			case BLACK:
-				// Rendered light so it isn't lost on the dark catacombs floor.
-				return new Color(215, 215, 215);
-			case SILVER:
-				return new Color(230, 230, 235);
-			case GOLD:
-				return new Color(255, 215, 0);
-			default:
-				return Color.WHITE;
-		}
 	}
 }

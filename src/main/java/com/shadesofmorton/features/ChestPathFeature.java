@@ -2,6 +2,7 @@ package com.shadesofmorton.features;
 
 import com.shadesofmorton.ShadeKey;
 import com.shadesofmorton.ShadeKeyMetal;
+import com.shadesofmorton.ShadesOfMortonConfig;
 import java.util.EnumSet;
 import java.util.Set;
 import javax.inject.Inject;
@@ -29,6 +30,9 @@ public class ChestPathFeature implements Feature
 	@Inject
 	private ClientThread clientThread;
 
+	@Inject
+	private ShadesOfMortonConfig config;
+
 	private final Set<ShadeKeyMetal> heldMetals = EnumSet.noneOf(ShadeKeyMetal.class);
 
 	private ChestPathOverlay overlay;
@@ -51,6 +55,12 @@ public class ChestPathFeature implements Feature
 			overlay = null;
 		}
 		heldMetals.clear();
+	}
+
+	@Override
+	public boolean isEnabled()
+	{
+		return config.chestPaths();
 	}
 
 	@Subscribe

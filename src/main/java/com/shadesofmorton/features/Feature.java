@@ -10,4 +10,13 @@ public interface Feature
 	void startUp();
 
 	void shutDown();
+
+	/**
+	 * Whether this feature is currently enabled (from its own injected config). The plugin
+	 * registers/unregisters the feature to match. Defaults to always on.
+	 */
+	default boolean isEnabled()
+	{
+		return true;
+	}
 }

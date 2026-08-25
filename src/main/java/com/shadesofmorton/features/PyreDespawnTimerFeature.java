@@ -1,5 +1,6 @@
 package com.shadesofmorton.features;
 
+import com.shadesofmorton.ShadesOfMortonConfig;
 import com.shadesofmorton.ShadesOfMortonConstants;
 import java.time.Duration;
 import java.time.Instant;
@@ -34,6 +35,9 @@ public class PyreDespawnTimerFeature implements Feature
 	@Inject
 	private OverlayManager overlayManager;
 
+	@Inject
+	private ShadesOfMortonConfig config;
+
 	private final PyreDespawnTimerOverlay overlay = new PyreDespawnTimerOverlay(this);
 
 	// Scene tile of the pyre the local player last interacted with ("mine").
@@ -55,6 +59,12 @@ public class PyreDespawnTimerFeature implements Feature
 	{
 		overlayManager.remove(overlay);
 		resetState();
+	}
+
+	@Override
+	public boolean isEnabled()
+	{
+		return config.pyreDespawnTimer();
 	}
 
 	@Subscribe

@@ -52,17 +52,18 @@ public class PreventActionInterruptFeature implements Feature
 		resetState();
 	}
 
+	@Override
+	public boolean isEnabled()
+	{
+		return config.preventActionInterrupt();
+	}
+
 	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
 		log.debug("menu click option='{}' target='{}' action={} id={} p0={} p1={}",
 			event.getMenuOption(), event.getMenuTarget(), event.getMenuAction(),
 			event.getId(), event.getParam0(), event.getParam1());
-
-		if (!config.preventActionInterrupt())
-		{
-			return;
-		}
 
 		if (!GAME_OBJECT_ACTIONS.contains(event.getMenuAction())
 			|| !ShadesOfMortonConstants.PYRE_OBJECT_IDS.contains(event.getId()))

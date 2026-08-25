@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.runelite.api.coords.WorldArea;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ObjectID;
 
 public final class ShadesOfMortonConstants
@@ -13,6 +14,31 @@ public final class ShadesOfMortonConstants
 	 * Corners captured in-game: SW 3456,9664 · SE 3518,9665 · NE 3521,9727 · NW 3456,9728.
 	 */
 	public static final WorldArea CATACOMBS_AREA = new WorldArea(3456, 9664, 66, 65, 0);
+
+	/**
+	 * Tiles of the Mort'ton temple wall segments you repair (the square perimeter; the
+	 * 3506,3314 entrance gap is not a temple tile). Used to identify a repairing interaction.
+	 */
+	public static final Set<WorldPoint> TEMPLE_REPAIR_TILES = Set.of(
+		new WorldPoint(3504, 3314, 0),
+		new WorldPoint(3505, 3314, 0),
+		new WorldPoint(3507, 3314, 0),
+		new WorldPoint(3508, 3314, 0),
+		new WorldPoint(3508, 3315, 0),
+		new WorldPoint(3508, 3316, 0),
+		new WorldPoint(3508, 3317, 0),
+		new WorldPoint(3508, 3318, 0),
+		new WorldPoint(3507, 3318, 0),
+		new WorldPoint(3506, 3318, 0),
+		new WorldPoint(3505, 3318, 0),
+		new WorldPoint(3504, 3318, 0),
+		new WorldPoint(3504, 3317, 0),
+		new WorldPoint(3504, 3316, 0),
+		new WorldPoint(3504, 3315, 0)
+	);
+
+	/** Tile of the fire/still used to sanctify oil (interior of the temple). */
+	public static final WorldPoint SANCTIFY_FIRE_TILE = new WorldPoint(3506, 3316, 0);
 
 	public static final Set<Integer> PYRE_OBJECT_IDS = Set.of(
 		ObjectID.TEMPLE_PYRE,
