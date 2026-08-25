@@ -1,12 +1,10 @@
 package com.shadesofmorton.features;
 
-import com.shadesofmorton.ShadesOfMortonConstants;
+import com.shadesofmorton.PyreInteractions;
 import com.shadesofmorton.ShadesOfMortonConfig;
-import java.util.Set;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.MenuAction;
 import net.runelite.api.Player;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.client.eventbus.Subscribe;
@@ -18,15 +16,6 @@ import net.runelite.client.eventbus.Subscribe;
 @Slf4j
 public class PreventActionInterruptFeature implements Feature
 {
-	// Left-click / right-click options on a game object.
-	private static final Set<MenuAction> GAME_OBJECT_ACTIONS = Set.of(
-		MenuAction.GAME_OBJECT_FIRST_OPTION,
-		MenuAction.GAME_OBJECT_SECOND_OPTION,
-		MenuAction.GAME_OBJECT_THIRD_OPTION,
-		MenuAction.GAME_OBJECT_FOURTH_OPTION,
-		MenuAction.GAME_OBJECT_FIFTH_OPTION
-	);
-
 	// Ticks to keep blocking after a valid click, covering the gap before the animation starts.
 	private static final int COOLDOWN_TICKS = 2;
 
@@ -65,8 +54,7 @@ public class PreventActionInterruptFeature implements Feature
 			event.getMenuOption(), event.getMenuTarget(), event.getMenuAction(),
 			event.getId(), event.getParam0(), event.getParam1());
 
-		if (!GAME_OBJECT_ACTIONS.contains(event.getMenuAction())
-			|| !ShadesOfMortonConstants.PYRE_OBJECT_IDS.contains(event.getId()))
+		if (!PyreInteractions.isAddInteraction(client, event))
 		{
 			return;
 		}

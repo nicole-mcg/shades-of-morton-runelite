@@ -1,13 +1,13 @@
 package com.shadesofmorton.features;
 
+import com.shadesofmorton.PyreInteractions;
 import com.shadesofmorton.ShadesOfMortonConfig;
 import com.shadesofmorton.ShadesOfMortonConstants;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Set;
 import javax.inject.Inject;
+import net.runelite.api.Client;
 import net.runelite.api.GameObject;
-import net.runelite.api.MenuAction;
 import net.runelite.api.Point;
 import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
@@ -23,14 +23,8 @@ public class PyreDespawnTimerFeature implements Feature
 {
 	static final Duration DESPAWN_TIME = Duration.ofSeconds(30);
 
-	// Left-click / right-click options on a game object.
-	private static final Set<MenuAction> GAME_OBJECT_ACTIONS = Set.of(
-		MenuAction.GAME_OBJECT_FIRST_OPTION,
-		MenuAction.GAME_OBJECT_SECOND_OPTION,
-		MenuAction.GAME_OBJECT_THIRD_OPTION,
-		MenuAction.GAME_OBJECT_FOURTH_OPTION,
-		MenuAction.GAME_OBJECT_FIFTH_OPTION
-	);
+	@Inject
+	private Client client;
 
 	@Inject
 	private OverlayManager overlayManager;
@@ -70,8 +64,7 @@ public class PyreDespawnTimerFeature implements Feature
 	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
-		if (GAME_OBJECT_ACTIONS.contains(event.getMenuAction())
-			&& ShadesOfMortonConstants.PYRE_OBJECT_IDS.contains(event.getId()))
+		if (PyreInteractions.isAddInteraction(client, event))
 		{
 			// param0/param1 are the scene X/Y of the clicked object.
 			myPyreSceneX = event.getParam0();
