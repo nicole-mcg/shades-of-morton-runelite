@@ -1,6 +1,7 @@
 package com.shadesofmorton;
 
 import com.google.inject.Provides;
+import com.shadesofmorton.features.ChestPathFeature;
 import com.shadesofmorton.features.Feature;
 import com.shadesofmorton.features.PreventActionInterruptFeature;
 import com.shadesofmorton.features.PyreDespawnTimerFeature;

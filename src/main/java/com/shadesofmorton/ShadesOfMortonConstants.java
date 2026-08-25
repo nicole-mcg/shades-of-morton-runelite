@@ -1,10 +1,19 @@
 package com.shadesofmorton;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
+import net.runelite.api.coords.WorldArea;
 import net.runelite.api.gameval.ObjectID;
 
 public final class ShadesOfMortonConstants
 {
+	/**
+	 * The shade catacombs, as an axis-aligned bounding box (SW corner + size, plane 0).
+	 * Corners captured in-game: SW 3456,9664 · SE 3518,9665 · NE 3521,9727 · NW 3456,9728.
+	 */
+	public static final WorldArea CATACOMBS_AREA = new WorldArea(3456, 9664, 66, 65, 0);
+
 	public static final Set<Integer> PYRE_OBJECT_IDS = Set.of(
 		ObjectID.TEMPLE_PYRE,
 
