@@ -8,22 +8,12 @@ import net.runelite.client.config.ConfigItem;
 public interface ShadesOfMortonConfig extends Config
 {
 	@ConfigItem(
-		keyName = "blockSpamClicks",
-		name = "Block spam clicks",
-		description = "Block redundant clicks on the burial site while the action is already in progress, so spam-clicking doesn't restart it."
+		keyName = "preventActionInterrupt",
+		name = "Prevent action interrupt",
+		description = "Prevent redundant clicks on the pyre site from interrupting the action while it is already in progress, so spam-clicking doesn't restart it."
 	)
-	default boolean blockSpamClicks()
+	default boolean preventActionInterrupt()
 	{
 		return true;
-	}
-
-	@ConfigItem(
-		keyName = "debugLogging",
-		name = "Debug logging",
-		description = "Log every menu click and animation change (used to discover the burial-site object IDs). Leave off during normal play."
-	)
-	default boolean debugLogging()
-	{
-		return false;
 	}
 }
