@@ -3,6 +3,7 @@ package com.shadesofmorton;
 import com.google.inject.Provides;
 import com.shadesofmorton.features.Feature;
 import com.shadesofmorton.features.PreventActionInterruptFeature;
+import com.shadesofmorton.features.PyreDespawnTimerFeature;
 import java.util.List;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +24,15 @@ public class ShadesOfMortonPlugin extends Plugin
 	@Inject
 	private PreventActionInterruptFeature preventActionInterruptFeature;
 
+	@Inject
+	private PyreDespawnTimerFeature pyreDespawnTimerFeature;
+
 	private List<Feature> features;
 
 	@Override
 	protected void startUp()
 	{
-		features = List.of(preventActionInterruptFeature);
+		features = List.of(preventActionInterruptFeature, pyreDespawnTimerFeature);
 		for (Feature feature : features)
 		{
 			eventBus.register(feature);

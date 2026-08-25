@@ -41,6 +41,22 @@ public final class ShadesOfMortonConstants
 		58412  // rosewood + remains
 	);
 
+	/**
+	 * Pyres that actually hold fuel (logs or shade remains) and therefore run the 30s
+	 * despawn timer — every pyre ID except the empty {@link ObjectID#TEMPLE_PYRE} stand.
+	 */
+	public static final Set<Integer> FUELED_PYRE_OBJECT_IDS = PYRE_OBJECT_IDS.stream()
+		.filter(id -> id != ObjectID.TEMPLE_PYRE)
+		.collect(Collectors.toUnmodifiableSet());
+
+	/**
+	 * All shade key item IDs (obtained by burning shade remains), derived from
+	 * {@link ShadeKey} so the key definitions stay the single source of truth.
+	 */
+	public static final Set<Integer> SHADE_KEY_ITEM_IDS = Arrays.stream(ShadeKey.values())
+		.map(ShadeKey::getKeyItemId)
+		.collect(Collectors.toUnmodifiableSet());
+
 	private ShadesOfMortonConstants()
 	{
 	}
