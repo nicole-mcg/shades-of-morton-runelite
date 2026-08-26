@@ -2,6 +2,7 @@ package com.shadesofmorton.features;
 
 import com.shadesofmorton.ShadeKey;
 import com.shadesofmorton.ShadesOfMortonConstants;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import net.runelite.api.Client;
@@ -55,7 +56,7 @@ class ChestHighlightOverlay extends Overlay
 			final ShadeKey key = ShadeKey.fromChestObjectId(chest.getId());
 			if (key != null && feature.getHeldKeys().contains(key))
 			{
-				modelOutlineRenderer.drawOutline(chest, OUTLINE_WIDTH, key.getMetal().getColour(), OUTLINE_FEATHER);
+				modelOutlineRenderer.drawOutline(chest, OUTLINE_WIDTH, new Color(0, 255, 0), OUTLINE_FEATHER);
 			}
 		}
 
