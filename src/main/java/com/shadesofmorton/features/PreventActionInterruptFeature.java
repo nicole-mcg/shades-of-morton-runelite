@@ -28,6 +28,7 @@ public class PreventActionInterruptFeature implements Feature
 	private int blockUntilTick = -1;
 	private int activeParam0 = -1;
 	private int activeParam1 = -1;
+	private int activeObjectId = -1;
 
 	@Override
 	public void startUp()
@@ -54,7 +55,7 @@ public class PreventActionInterruptFeature implements Feature
 			event.getMenuOption(), event.getMenuTarget(), event.getMenuAction(),
 			event.getId(), event.getParam0(), event.getParam1());
 
-		if (!PyreInteractions.isAddInteraction(client, event))
+		if (!PyreInteractions.isPyreActionInteraction(client, event))
 		{
 			return;
 		}
@@ -62,11 +63,13 @@ public class PreventActionInterruptFeature implements Feature
 		final Player local = client.getLocalPlayer();
 		final boolean isAnimating = local != null && local.getAnimation() != -1;
 		final boolean cooling = client.getTickCount() < blockUntilTick;
-		final boolean samePyre = event.getParam0() == activeParam0 && event.getParam1() == activeParam1;
+		final boolean sameTile = event.getParam0() == activeParam0 && event.getParam1() == activeParam1;
+		// The object id changes at each build step; a different id means the next step is ready.
+		final boolean sameStep = event.getId() == activeObjectId;
 
-		if ((isAnimating || cooling) && samePyre)
+		if ((isAnimating || cooling) && sameTile && sameStep)
 		{
-			// Redundant spam click on the pyre we're already working — block it so the
+			// Redundant spam click on the step we're already working — block it so the
 			// in-progress action isn't restarted.
 			event.consume();
 			return;
@@ -76,6 +79,7 @@ public class PreventActionInterruptFeature implements Feature
 		blockUntilTick = client.getTickCount() + COOLDOWN_TICKS;
 		activeParam0 = event.getParam0();
 		activeParam1 = event.getParam1();
+		activeObjectId = event.getId();
 	}
 
 	private void resetState()
@@ -83,5 +87,6 @@ public class PreventActionInterruptFeature implements Feature
 		blockUntilTick = -1;
 		activeParam0 = -1;
 		activeParam1 = -1;
+		activeObjectId = -1;
 	}
 }

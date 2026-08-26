@@ -15,6 +15,9 @@ public final class ShadesOfMortonConstants
 	/** Menu option words for adding fuel to a pyre: "Build" = add pyre logs, "Use" = add remains. */
 	public static final Set<String> PYRE_ADD_OPTIONS = Set.of("Build", "Use");
 
+	/** Pyre object options that start an interruptible action: adding fuel, plus "Light" (burn). */
+	public static final Set<String> PYRE_ACTION_OPTIONS = Set.of("Build", "Use", "Light");
+
 	/** Pyre logs items (sacred-oiled logs) used to build a funeral pyre. */
 	public static final Set<Integer> PYRE_LOG_ITEM_IDS = Set.of(
 		ItemID.LOGS_PYRE,
@@ -55,12 +58,8 @@ public final class ShadesOfMortonConstants
 		ItemID.OLIVEOIL4
 	);
 
-	/** The temple fire altar (used to sanctify oil) — flaming, unlit, and broken variants. */
-	public static final Set<Integer> FIRE_ALTAR_OBJECT_IDS = Set.of(
-		ObjectID.TEMPLEFIRE_ALTAR,
-		ObjectID.TEMPLEFIRE_ALTAR_NOFIRE,
-		ObjectID.TEMPLEFIRE_ALTAR_NOFIRE_BROKEN
-	);
+	/** The lit temple fire altar. Only the lit altar sanctifies oil — not the unlit/broken variants. */
+	public static final int SANCTIFY_ALTAR_OBJECT_ID = ObjectID.TEMPLEFIRE_ALTAR;
 
 	/** Game message shown when using too-high remains on too-low pyre logs (a failed add). */
 	public static final String INCOMPATIBLE_REMAINS_MESSAGE = "You need higher level pyre logs to burn these remains.";

@@ -30,11 +30,12 @@ public class TempleNotificationsFeature implements Feature
 	private enum Activity
 	{
 		NONE(0, null),
-		// Both actions auto-repeat with a short animation gap between each item; only notify
-		// once the animation has been absent for more idle ticks than that gap.
 		REPAIRING(2, "Stopped repairing the temple."),
 		SANCTIFYING(3, "Stopped sanctifying oil.");
 
+		/**
+		 * Idle ticks beyond the inter-item animation gap before the action counts as stopped.
+		 */
 		final int numIdleTicksToNotify;
 		final String idleNotificationMessage;
 
@@ -47,7 +48,9 @@ public class TempleNotificationsFeature implements Feature
 
 	private static final Function<ShadesOfMortonConfig, Notification> NO_NOTIFICATION = config -> null;
 
-	// The config notification each activity fires when it stops. NONE is a no-op.
+	/**
+	 * The config notification each activity fires when it stops. NONE is a no-op.
+	 */
 	private static final Map<Activity, Function<ShadesOfMortonConfig, Notification>> STOPPED_NOTIFICATIONS =
 		new EnumMap<>(Map.of(
 			Activity.NONE, NO_NOTIFICATION,
@@ -119,12 +122,10 @@ public class TempleNotificationsFeature implements Feature
 		final Activity clicked = getActivityForEvent(event);
 		if (clicked == pendingActivity)
 		{
-			// Re-clicking the same action just continues it — keep tracking.
 			return;
 		}
 
-		// Player started another action (or walked/interrupted away): switch intent and drop
-		// any in-progress action silently — only a natural end sends a notification.
+		// A switch or interrupt drops the in-progress action silently; only a natural end notifies.
 		pendingActivity = clicked;
 		currentActivity = Activity.NONE;
 		numTicksSinceLastAction = 0;
@@ -138,7 +139,7 @@ public class TempleNotificationsFeature implements Feature
 			return Activity.NONE;
 		}
 
-		if (ShadesOfMortonConstants.FIRE_ALTAR_OBJECT_IDS.contains(event.getId()) && isSanctifyEvent(event))
+		if (event.getId() == ShadesOfMortonConstants.SANCTIFY_ALTAR_OBJECT_ID && isSanctifyEvent(event))
 		{
 			return Activity.SANCTIFYING;
 		}
@@ -184,16 +185,15 @@ public class TempleNotificationsFeature implements Feature
 		{
 			if (pendingActivity != Activity.NONE)
 			{
-				// The clicked action has actually started (or resumed after an inter-item gap).
 				currentActivity = pendingActivity;
 				numTicksSinceLastAction = 0;
 			}
 			return;
 		}
 
+		// currentActivity stays NONE while walking to a clicked action, so that gap can't time out.
 		if (currentActivity == Activity.NONE)
 		{
-			// No action animating (idle, or still walking to a clicked action) — nothing to time out.
 			return;
 		}
 
