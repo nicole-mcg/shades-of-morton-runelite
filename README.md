@@ -2,13 +2,10 @@
 
 A RuneLite plugin for the Shades of Mort'ton minigame.
 
-Interacting with the burial site (funeral pyre) is tick-sensitive — spam-clicking
-re-issues the interaction every click, so the character keeps restarting and the action
-never completes. This plugin **blocks redundant clicks on the burial site while the
-action is already in progress**, so you can spam-click and the first click still resolves
-cleanly.
-
-## Config
-
-- **Debug logging** — logs every menu click and animation change. Used to capture the
-  burial-site object IDs; leave off during normal play.
+Current features, all configurable:
+- Highlights chests corresponding to the keys you have in your inventory
+- Adds paths to the room with the chests for the keys you have in your inventory
+- Prevents duplicate clicks to the pyre objects. In-game repeatedly clicking will keep interrupting the action, resulting in nothing happening.
+- Notify on full sanctity when repairing
+- Notify when repairing stops
+- Notify when sanctifying oil stops
