@@ -1,6 +1,9 @@
-package com.shadesofmorton;
+package com.shadesofmorton.helpers;
 
 import java.util.Set;
+
+import com.shadesofmorton.ShadesOfMortonConstants;
+
 import net.runelite.api.Client;
 import net.runelite.api.MenuAction;
 import net.runelite.api.events.MenuOptionClicked;
@@ -11,7 +14,7 @@ import net.runelite.client.util.Text;
  * Single source of truth for detecting pyre interactions, so the interrupt and despawn-timer
  * features agree on what counts.
  */
-public final class PyreInteractions
+public final class PyreInteractionHelpers
 {
 	/**
 	 * @return true if this click adds fuel to a pyre: a "Build"/"Use" object option (adds pyre
@@ -51,7 +54,7 @@ public final class PyreInteractions
 		return directOptions.contains(Text.removeTags(event.getMenuOption()));
 	}
 
-	private PyreInteractions()
+	private PyreInteractionHelpers()
 	{
 	}
 }

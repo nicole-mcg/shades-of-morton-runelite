@@ -1,8 +1,8 @@
-package com.shadesofmorton.features;
+package com.shadesofmorton.features.chestpaths;
 
-import com.shadesofmorton.ShadeChestPaths;
 import com.shadesofmorton.ShadeKeyMetal;
 import com.shadesofmorton.ShadesOfMortonConstants;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -53,7 +53,7 @@ class ChestPathOverlay extends Overlay
 		graphics.setStroke(new BasicStroke(2f));
 		for (ShadeKeyMetal metal : feature.getHeldMetals())
 		{
-			final List<List<WorldPoint>> branches = ShadeChestPaths.PATHS.get(metal);
+			final List<List<WorldPoint>> branches = ShadeChestPathConstants.PATHS.get(metal);
 			if (branches == null)
 			{
 				continue;

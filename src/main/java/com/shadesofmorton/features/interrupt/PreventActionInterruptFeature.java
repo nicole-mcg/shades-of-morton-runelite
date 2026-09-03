@@ -1,7 +1,9 @@
-package com.shadesofmorton.features;
+package com.shadesofmorton.features.interrupt;
 
-import com.shadesofmorton.PyreInteractions;
 import com.shadesofmorton.ShadesOfMortonConfig;
+import com.shadesofmorton.features.Feature;
+import com.shadesofmorton.helpers.PyreInteractionHelpers;
+
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -55,7 +57,7 @@ public class PreventActionInterruptFeature implements Feature
 			event.getMenuOption(), event.getMenuTarget(), event.getMenuAction(),
 			event.getId(), event.getParam0(), event.getParam1());
 
-		if (!PyreInteractions.isPyreActionInteraction(client, event))
+		if (!PyreInteractionHelpers.isPyreActionInteraction(client, event))
 		{
 			return;
 		}

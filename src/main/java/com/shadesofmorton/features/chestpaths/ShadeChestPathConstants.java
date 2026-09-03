@@ -1,7 +1,10 @@
-package com.shadesofmorton;
+package com.shadesofmorton.features.chestpaths;
 
 import java.util.List;
 import java.util.Map;
+
+import com.shadesofmorton.ShadeKeyMetal;
+
 import net.runelite.api.coords.WorldPoint;
 
 /**
@@ -10,7 +13,7 @@ import net.runelite.api.coords.WorldPoint;
  * entrance → chest, plane 0) drawn as connected line segments. A single-destination route is
  * just one branch; a forked route has several (they repeat the shared prefix).
  */
-public final class ShadeChestPaths
+public final class ShadeChestPathConstants
 {
 	/** Shared entrance tile — the start of every path. */
 	private static final WorldPoint ENTRANCE = new WorldPoint(3493, 9726, 0);
@@ -67,7 +70,7 @@ public final class ShadeChestPaths
 		)
 	);
 
-	private ShadeChestPaths()
+	private ShadeChestPathConstants()
 	{
 	}
 }

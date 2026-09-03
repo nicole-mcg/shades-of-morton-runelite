@@ -2,11 +2,12 @@ package com.shadesofmorton;
 
 import com.google.inject.Provides;
 import com.shadesofmorton.features.ChestHighlightFeature;
-import com.shadesofmorton.features.ChestPathFeature;
 import com.shadesofmorton.features.Feature;
-import com.shadesofmorton.features.PreventActionInterruptFeature;
-import com.shadesofmorton.features.PyreDespawnTimerFeature;
-import com.shadesofmorton.features.TempleNotificationsFeature;
+import com.shadesofmorton.features.chestpaths.ChestPathFeature;
+import com.shadesofmorton.features.despawntimer.PyreDespawnTimerFeature;
+import com.shadesofmorton.features.interrupt.PreventActionInterruptFeature;
+import com.shadesofmorton.features.notifications.TempleNotificationsFeature;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

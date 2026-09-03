@@ -1,8 +1,10 @@
-package com.shadesofmorton.features;
+package com.shadesofmorton.features.despawntimer;
 
-import com.shadesofmorton.PyreInteractions;
 import com.shadesofmorton.ShadesOfMortonConfig;
 import com.shadesofmorton.ShadesOfMortonConstants;
+import com.shadesofmorton.features.Feature;
+import com.shadesofmorton.helpers.PyreInteractionHelpers;
+
 import java.time.Duration;
 import java.time.Instant;
 import javax.inject.Inject;
@@ -64,7 +66,7 @@ public class PyreDespawnTimerFeature implements Feature
 	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
-		if (PyreInteractions.isAddInteraction(client, event))
+		if (PyreInteractionHelpers.isAddInteraction(client, event))
 		{
 			// param0/param1 are the scene X/Y of the clicked object.
 			myPyreSceneX = event.getParam0();

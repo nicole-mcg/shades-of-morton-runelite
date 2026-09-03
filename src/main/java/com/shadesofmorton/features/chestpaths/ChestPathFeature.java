@@ -1,8 +1,10 @@
-package com.shadesofmorton.features;
+package com.shadesofmorton.features.chestpaths;
 
 import com.shadesofmorton.ShadeKey;
 import com.shadesofmorton.ShadeKeyMetal;
 import com.shadesofmorton.ShadesOfMortonConfig;
+import com.shadesofmorton.features.Feature;
+
 import java.util.EnumSet;
 import java.util.Set;
 import javax.inject.Inject;

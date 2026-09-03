@@ -1,4 +1,4 @@
-package com.shadesofmorton.features;
+package com.shadesofmorton.features.chesthighlight;
 
 import com.shadesofmorton.ShadeKey;
 import com.shadesofmorton.ShadesOfMortonConstants;

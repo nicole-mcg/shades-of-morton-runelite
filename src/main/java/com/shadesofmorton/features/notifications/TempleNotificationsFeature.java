@@ -1,7 +1,9 @@
-package com.shadesofmorton.features;
+package com.shadesofmorton.features.notifications;
 
 import com.shadesofmorton.ShadesOfMortonConfig;
 import com.shadesofmorton.ShadesOfMortonConstants;
+import com.shadesofmorton.features.Feature;
+
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;

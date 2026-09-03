@@ -1,7 +1,9 @@
-package com.shadesofmorton.features;
+package com.shadesofmorton.features.chesthighlight;
 
 import com.shadesofmorton.ShadeKey;
 import com.shadesofmorton.ShadesOfMortonConfig;
+import com.shadesofmorton.features.Feature;
+
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
