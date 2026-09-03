@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableSet;
+
 import net.runelite.api.MenuAction;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
@@ -13,13 +16,13 @@ import net.runelite.api.gameval.ObjectID;
 public final class ShadesOfMortonConstants
 {
 	/** Menu option words for adding fuel to a pyre: "Build" = add pyre logs, "Use" = add remains. */
-	public static final Set<String> PYRE_ADD_OPTIONS = Set.of("Build", "Use");
+	public static final Set<String> PYRE_ADD_OPTIONS = ImmutableSet.of("Build", "Use");
 
 	/** Pyre object options that start an interruptible action: adding fuel, plus "Light" (burn). */
-	public static final Set<String> PYRE_ACTION_OPTIONS = Set.of("Build", "Use", "Light");
+	public static final Set<String> PYRE_ACTION_OPTIONS = ImmutableSet.of("Build", "Use", "Light");
 
 	/** Pyre logs items (sacred-oiled logs) used to build a funeral pyre. */
-	public static final Set<Integer> PYRE_LOG_ITEM_IDS = Set.of(
+	public static final Set<Integer> PYRE_LOG_ITEM_IDS = ImmutableSet.of(
 		ItemID.LOGS_PYRE,
 		ItemID.OAK_LOGS_PYRE,
 		ItemID.WILLOW_LOGS_PYRE,
@@ -36,7 +39,7 @@ public final class ShadesOfMortonConstants
 	);
 
 	/** Shade remains items (Loar → Urium) placed on a pyre before burning. */
-	public static final Set<Integer> SHADE_REMAINS_ITEM_IDS = Set.of(
+	public static final Set<Integer> SHADE_REMAINS_ITEM_IDS = ImmutableSet.of(
 		ItemID.SHADE_BONES1,
 		ItemID.SHADE_BONES2,
 		ItemID.SHADE_BONES3,
@@ -51,7 +54,7 @@ public final class ShadesOfMortonConstants
 		.collect(Collectors.toUnmodifiableSet());
 
 	/** Olive oil doses used on the flaming fire altar to make sacred oil. */
-	public static final Set<Integer> OLIVE_OIL_ITEM_IDS = Set.of(
+	public static final Set<Integer> OLIVE_OIL_ITEM_IDS = ImmutableSet.of(
 		ItemID.OLIVEOIL1,
 		ItemID.OLIVEOIL2,
 		ItemID.OLIVEOIL3,
