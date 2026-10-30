@@ -13,6 +13,7 @@ import net.runelite.api.MenuAction;
 import net.runelite.api.Player;
 import net.runelite.api.WorldView;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
@@ -28,6 +29,8 @@ public class TempleNotificationsFeature implements Feature
 	private static final int REPAIR_OR_SANCTIFY_ACTION_ANIMATION_ID = 832;
 
 	private static final int FULL_SANCTITY = 100;
+
+	private static final String FLAMTAER_BRACELET_BREAK_MESSAGE = "Your Flamtaer bracelet helps you build the temple quicker. It then crumbles to dust.";
 
 	private enum Activity
 	{
@@ -113,6 +116,49 @@ public class TempleNotificationsFeature implements Feature
 	}
 
 	@Subscribe
+	public void onGameTick(GameTick event)
+	{
+		final Player localPlayer = client.getLocalPlayer();
+		final boolean isPlayerAnimating = localPlayer != null
+				&& localPlayer.getAnimation() == REPAIR_OR_SANCTIFY_ACTION_ANIMATION_ID;
+
+		if (isPlayerAnimating)
+		{
+			if (pendingActivity != Activity.NONE)
+			{
+				currentActivity = pendingActivity;
+				numTicksSinceLastAction = 0;
+			}
+			return;
+		}
+
+		// currentActivity stays NONE while walking to a clicked action
+		// so we don't notify before they've actually started.
+		if (currentActivity == Activity.NONE)
+		{
+			return;
+		}
+
+		numTicksSinceLastAction++;
+		if (numTicksSinceLastAction >= currentActivity.numIdleTicksToNotify)
+		{
+			onActivityStopped();
+		}
+	}
+
+	@Subscribe
+	public void onChatMessage(ChatMessage chatMessage) {
+		String message = Text.removeTags(chatMessage.getMessage());
+		if (message.equals(FLAMTAER_BRACELET_BREAK_MESSAGE)) {
+			final Notification notification = config.flamtaerBraceletBreakNotification();
+			if (notification != null)
+			{
+				notifier.notify(notification, "Your flamtaer bracelet has broken.");
+			}
+		}
+	}
+
+	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
 		// Closing a right-click menu is not a redirect — ignore it.
@@ -131,6 +177,25 @@ public class TempleNotificationsFeature implements Feature
 		pendingActivity = clicked;
 		currentActivity = Activity.NONE;
 		numTicksSinceLastAction = 0;
+	}
+
+	@Subscribe
+	public void onVarbitChanged(VarbitChanged event)
+	{
+		if (event.getVarpId() != VarPlayerID.TEMPLE_SANCTITY_P)
+		{
+			return;
+		}
+
+		final int sanctity = event.getValue();
+
+		// Sanctity can go above 100. Only notify when we go from under 100 to 100 or above.
+		if (sanctity >= FULL_SANCTITY && lastSanctity < FULL_SANCTITY)
+		{
+			notifier.notify(config.fullSanctityNotification(), "Temple at full sanctity.");
+		}
+
+		lastSanctity = sanctity;
 	}
 
 
@@ -176,36 +241,6 @@ public class TempleNotificationsFeature implements Feature
 		return ShadesOfMortonConstants.TEMPLE_REPAIR_TILES.contains(tile);
 	}
 
-	@Subscribe
-	public void onGameTick(GameTick event)
-	{
-		final Player local = client.getLocalPlayer();
-		final boolean animating = local != null
-			&& local.getAnimation() == REPAIR_OR_SANCTIFY_ACTION_ANIMATION_ID;
-
-		if (animating)
-		{
-			if (pendingActivity != Activity.NONE)
-			{
-				currentActivity = pendingActivity;
-				numTicksSinceLastAction = 0;
-			}
-			return;
-		}
-
-		// currentActivity stays NONE while walking to a clicked action, so that gap can't time out.
-		if (currentActivity == Activity.NONE)
-		{
-			return;
-		}
-
-		numTicksSinceLastAction++;
-		if (numTicksSinceLastAction >= currentActivity.numIdleTicksToNotify)
-		{
-			onActivityStopped();
-		}
-	}
-
 	private void onActivityStopped()
 	{
 		final Notification notification = STOPPED_NOTIFICATIONS.get(currentActivity).apply(config);
@@ -217,25 +252,6 @@ public class TempleNotificationsFeature implements Feature
 		pendingActivity = Activity.NONE;
 		currentActivity = Activity.NONE;
 		numTicksSinceLastAction = 0;
-	}
-
-	@Subscribe
-	public void onVarbitChanged(VarbitChanged event)
-	{
-		if (event.getVarpId() != VarPlayerID.TEMPLE_SANCTITY_P)
-		{
-			return;
-		}
-
-		final int sanctity = event.getValue();
-
-		// Sanctity can go above 100. Only notify when we go from under 100 to 100 or above.
-		if (sanctity >= FULL_SANCTITY && lastSanctity < FULL_SANCTITY)
-		{
-			notifier.notify(config.fullSanctityNotification(), "Temple at full sanctity.");
-		}
-
-		lastSanctity = sanctity;
 	}
 
 	private void resetState()

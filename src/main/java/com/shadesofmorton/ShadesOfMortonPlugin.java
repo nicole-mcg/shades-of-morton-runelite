@@ -1,7 +1,7 @@
 package com.shadesofmorton;
 
 import com.google.inject.Provides;
-import com.shadesofmorton.features.ChestHighlightFeature;
+import com.shadesofmorton.features.chesthighlight.ChestHighlightFeature;
 import com.shadesofmorton.features.Feature;
 import com.shadesofmorton.features.chestpaths.ChestPathFeature;
 import com.shadesofmorton.features.despawntimer.PyreDespawnTimerFeature;

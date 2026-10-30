@@ -90,4 +90,15 @@ public interface ShadesOfMortonConfig extends Config
 	{
 		return new Notification().withEnabled(true);
 	}
+
+	@ConfigItem(
+		keyName = "flamtaerBraceletBreakNotification",
+		name = "Notify on bracelet break",
+		description = "Notify when your Flamtaer bracelet breaks.",
+		section = NOTIFICATIONS_SECTION
+	)
+	default Notification flamtaerBraceletBreakNotification()
+	{
+		return new Notification().withEnabled(true);
+	}
 }
